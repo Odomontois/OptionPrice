@@ -6,11 +6,9 @@ import net.liftweb.json._
 import scala.util.Try
 
 /**
- * Created with IntelliJ IDEA.
  * User: Oleg
  * Date: 10/27/13
  * Time: 11:44 PM
- * To change this template use File | Settings | File Templates.
  */
 case class Config private(
                    x:Double,
@@ -22,6 +20,6 @@ case class Config private(
 object Config{
   import net.liftweb.json.JsonParser._
   implicit val formats = DefaultFormats
-  def read(filename:String) =  Try(Some(parse(Source.fromFile(filename).reader).extract[Config]))
+  def read(filename:String) =  Try(parse(Source.fromFile(filename).reader).extract[Config])
 }
 
