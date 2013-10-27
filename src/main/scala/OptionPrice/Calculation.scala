@@ -10,7 +10,11 @@ package OptionPrice
 trait Algorithm {
   def calc: Double
 }
-abstract class Calculation(config: Config) extends Algorithm {
+
+
+abstract class Calculation(protected val config: Config) extends Algorithm {
+  protected[this] case class Point(val prob: Double, val u: Double, val d: Double)
+  val points = config.p zip config.u map (i => new Point(i._1, i._2, 1 / i._2))
   lazy val result = calc
 }
 

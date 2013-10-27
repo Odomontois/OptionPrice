@@ -11,7 +11,8 @@ import scala.util.Try
  * Time: 11:44 PM
  */
 case class Config private(
-                   x:Double,
+                   S:Double,
+                   X:Double,
                    u: Seq[Double],
                    p: Seq[Double],
                    r: Double,
