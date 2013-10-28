@@ -11,9 +11,15 @@ package OptionPrice
 trait SimpleAlgorithm extends Algorithm {
   this: Calculation =>
 
+  val coef = Math.exp(-config.r * config.deltaT)
+
   def calcBranch(points: Seq[Point], factor: Double = 1): Double = points match {
-    case Nil => config.X - factor * config.S max 0
-    case Point(p, u, d) :: other => p * u * calcBranch(other, factor * u) - (1 - p) * d * calcBranch(other, factor * d)
+    case Nil           => (config.X - factor * config.S) max 0
+    case point :: rest => coef * {
+      import point._
+      pu * u * calcBranch(rest, factor * u) + pd * d * calcBranch(rest, factor * d) +
+        (if (pm > 0) pm * calcBranch(rest, factor) else 0.0)
+    }
   }
 
   override def calc: Double = calcBranch(points)

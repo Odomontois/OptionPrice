@@ -7,7 +7,7 @@ import scala.util.{Success, Failure}
  */
 object App extends App{
   util.Properties.setProp("scala.time","")
-  println(Config.read("OptionPrice/config.json") match{
+  println(Config.read("/config.json") match{
     case Failure(error) => Console.err.println(error)
     case Success(config) => println( (new Calculation(config) with SimpleAlgorithm).result )
   })
