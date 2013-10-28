@@ -27,6 +27,7 @@ object Config {
 
   implicit val formats = DefaultFormats
 
-  def read(name: String) = Try(parse(Source.fromURL(getClass.getResource(name)).reader).extract[Config])
+  def read(name: String, cfg: String = "/config.json") = Try(parse(Source.fromURL(getClass.getResource(cfg)).reader
+  ).extract[Map[String, Config]] apply name)
 }
 
