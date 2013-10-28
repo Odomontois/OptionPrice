@@ -1,4 +1,0 @@
-OptionPrice
-===========
-
-Option Price Caculation
