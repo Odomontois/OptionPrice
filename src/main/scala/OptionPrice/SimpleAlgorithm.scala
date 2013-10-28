@@ -19,7 +19,7 @@ trait SimpleAlgorithm extends Algorithm {
     case Nil           => (X - factor * S) max 0
     case point :: rest => coef * {
       import point._
-      pu * u * calcBranch(rest, factor * u) + pd * d * calcBranch(rest, factor * d) +
+      pu * calcBranch(rest, factor * u) + pd * calcBranch(rest, factor * d) +
         (if (pm > 0) pm * calcBranch(rest, factor) else 0.0)
     }
   }
