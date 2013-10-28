@@ -11,10 +11,12 @@ package OptionPrice
 trait SimpleAlgorithm extends Algorithm {
   this: Calculation =>
 
-  val coef = Math.exp(-config.r * config.deltaT)
+  import config.{X, S, r, deltaT}
+
+  val coef = Math.exp(-r * deltaT)
 
   def calcBranch(points: Seq[Point], factor: Double = 1): Double = points match {
-    case Nil           => (config.X - factor * config.S) max 0
+    case Nil           => (X - factor * S) max 0
     case point :: rest => coef * {
       import point._
       pu * u * calcBranch(rest, factor * u) + pd * d * calcBranch(rest, factor * d) +
@@ -24,9 +26,4 @@ trait SimpleAlgorithm extends Algorithm {
 
   override def calc: Double = calcBranch(points)
 }
-object SimpleAlgorithm {
 
-  implicit class DoubleMax(val that: Double) extends AnyVal {
-    def max(other: Double) = if (that > other) that else other
-  }
-}

@@ -13,7 +13,7 @@ trait Algorithm {
 
 
 abstract class Calculation(protected val config: Config) extends Algorithm {
-  protected[this] case class Point(val pu: Double, val u: Double, val d: Double, val pm: Double, val pd: Double)
+  protected[this] case class Point( val u: Double, val d: Double, val pu: Double, val pm: Double, val pd: Double)
   val points = {
     val pus = config.pu
     val pds = config.pd match {
