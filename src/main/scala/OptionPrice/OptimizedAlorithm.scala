@@ -10,20 +10,28 @@ trait OptimizedAlorithm extends Algorithm with IntervalOptimization {
 
   import config.{X, S, r, deltaT}
 
+  override val barrier = X / S
+
   val coef = Math.exp(-r * deltaT * points.size)
   val cache = new IntervalCache[Seq[Point]]
 
   def calcBranchSimple(points: Seq[Point], factor: Double = 1): IntervalValue = points match {
-    case Nil           => new IntervalValue(onLeaf(factor)) barrier (X / S)
+    case Nil           => onLeaf(factor).leaf
     case point :: rest => {
       import point._
-      (calcBranch(rest, factor * u) * pu) \\ u + (calcBranch(rest, factor * d) * pd) \\ d +
-        (if (pm > 0) calcBranch(rest, factor) * pm else new IntervalValue(0.0))
-
+      (calcBranch(rest, factor * u) * pu) \\ u + (calcBranch(rest, factor * d) * pd) \\ d + (calcBranch(rest, factor) * pm)
     }
   }
 
-  val calcBranch = calcBranchSimple _
+  def calcProd(points: Seq[Point]): Double = points match {
+    case Nil           => S
+    case point :: rest => {
+      import point._
+      (pu * u + pd * d + pm) * calcProd(rest)
+    }
+  }
 
-  override def calc: Double = coef * ( X - calcBranch(points, 1).value * S )
+  val calcBranch = cache(calcBranchSimple _)
+
+  override def calc: Double = coef * (X - calcProd(points) + calcBranchSimple(points).value)
 }
