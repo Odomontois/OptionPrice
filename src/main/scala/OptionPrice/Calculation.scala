@@ -11,7 +11,7 @@ package OptionPrice
 trait Algorithm {
   def calc: Double
 
-  def onLeaf(leaf: Double): Double = leaf
+  def onNode[T](node: T): T = node
 }
 
 
@@ -45,12 +45,10 @@ abstract class Calculation(protected val config: Config) extends Algorithm {
   }
 
   lazy val result = calc
-  var leafs = 0
-  var nullleafs = 0
+  var nodes = 0
 
-  override def onLeaf(leaf: Double) = {
-    leafs += 1
-    if(leaf == 0) nullleafs += 1
+  override def onNode[T](leaf: T) = {
+    nodes += 1
     leaf
   }
 }

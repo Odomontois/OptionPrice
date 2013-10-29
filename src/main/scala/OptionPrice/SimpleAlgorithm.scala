@@ -15,9 +15,8 @@ trait SimpleAlgorithm extends Algorithm {
 
   val coef = Math.exp(-r * deltaT * points.size)
 
-  def calcBranch(points: Seq[Point], factor: Double = 1): Double = points match {
-    case Nil           =>
-      onLeaf((X - factor * S) max 0)
+  def calcBranch(points: Seq[Point], factor: Double = 1): Double = onNode(points) match {
+    case Nil           => (X - factor * S) max 0
     case point :: rest => {
       import point._
       pu * calcBranch(rest, factor * u) + pd * calcBranch(rest, factor * d) +

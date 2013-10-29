@@ -12,8 +12,8 @@ object App extends App {
     case Success(config) => {
       val simple = new Calculation(config) with SimpleAlgorithm
       val optimized = new Calculation(config) with OptimizedAlgorithm
-      println(optimized.result, optimized.leafs, optimized.nullleafs)
-      println(simple.result, simple.leafs, simple.nullleafs)
+      println(optimized.result, optimized.nodes)
+      println(simple.result, simple.nodes)
 
 
     }

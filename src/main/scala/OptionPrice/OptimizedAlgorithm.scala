@@ -13,13 +13,22 @@ trait OptimizedAlgorithm extends Algorithm with IntervalOptimization {
   override val barrier = X / S
 
   val coef = Math.exp(-r * deltaT * points.size)
-  val cache = new IntervalCache[Seq[Point]]
+  val gCache = new IntervalCache[Seq[Point]]
+  val hCache = new IntervalCache[Seq[Point]]
 
-  def calcBranchSimple(points: Seq[Point], factor: Double = 1): IntervalValue = points match {
-    case Nil           => onLeaf(factor).leaf
+  def calcG(points: Seq[Point], factor: Double = 1): IntervalValue = onNode(points) match {
+    case Nil           => factor.leaf
     case point :: rest => {
       import point._
-      (calcBranch(rest, factor * u) * pu * u) + (calcBranch(rest, factor * d) * pd * d)  + (calcBranch(rest, factor) * pm)
+      ((gFunc(rest, factor * u) * pu * u) \\ u) + ((gFunc(rest, factor * d) * pd * d) \\ d) + (gFunc(rest, factor) * pm)
+    }
+  }
+
+  def calcH(points: Seq[Point], factor: Double = 1): IntervalValue = onNode(points) match {
+    case Nil           => factor.leaf
+    case point :: rest => {
+      import point._
+      ((hFunc(rest, factor * u) * pu) \\ u) + ((hFunc(rest, factor * d) * pd) \\ d) + (hFunc(rest, factor) * pm)
     }
   }
 
@@ -31,7 +40,8 @@ trait OptimizedAlgorithm extends Algorithm with IntervalOptimization {
     }
   }
 
-  val calcBranch = calcBranchSimple _
+  val gFunc = gCache(calcG _)
+  val hFunc = hCache(calcH _)
 
-  override def calc: Double = coef * (X - calcProd(points) + S * calcBranch(points, 1).value)
+  override def calc: Double = coef * (X - calcProd(points) + S * gFunc(points, 1).value - X * hFunc(points, 1).value)
 }
