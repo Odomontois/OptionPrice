@@ -2,9 +2,6 @@ package OptionPrice
 
 import scala.util.{Success, Failure}
 
-/**
- * @author ${user.name}
- */
 object App extends App {
   util.Properties.setProp("scala.time", "")
   println(Config.read("modified") match {
@@ -14,9 +11,6 @@ object App extends App {
       val optimized = new Calculation(config) with OptimizedAlgorithm
       println(optimized.result, optimized.nodes)
       println(simple.result, simple.nodes)
-
-
     }
-
   })
 }
