@@ -23,13 +23,13 @@ abstract class Calculation(protected val config: Config) extends Algorithm {
     }
     val pms = (config.pd, config.pm) match {
       case (None, None)           => List.fill(pus.length)(0.0)
-      case (Some(pds), None)      => pus zip pds map {
+      case (Some(pds), _)      => pus zip pds map {
         case (u, d) => 1 - u - d ensuring (_ > 0)
       }
-      case (Some(pds), Some(pms)) => pms ensuring pms.length == pus.length ensuring (pus zip pds zip pms forall ({
-        case ((u, d), m) => u + d + m == 1.0 /* Т.к. числа задаются в JSON десятичными дробями можно требовать точного равенства -
-                                                 Ошибки округления scala зашлифует сама */
-      }))
+      // case (Some(pds), Some(pms)) => pms ensuring pms.length == pus.length ensuring (pus zip pds zip pms forall ({
+      //   case ((u, d), m) => u + d + m == 1.0  /*Т.к. числа задаются в JSON десятичными дробями можно требовать точного равенства -
+      //                                            Ошибки округления scala зашлифует сама */
+      // }))
       case _                      => sys.error("")
     }
     val us = config.u ensuring (_.length == pus.length)
@@ -43,7 +43,7 @@ abstract class Calculation(protected val config: Config) extends Algorithm {
   }
 
   lazy val result = calc
-  var nodes = 0
+  var nodes = 0L
 
   override def onNode[T](leaf: T) = {
     nodes += 1
