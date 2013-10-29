@@ -13,17 +13,18 @@ trait SimpleAlgorithm extends Algorithm {
 
   import config.{X, S, r, deltaT}
 
-  val coef = Math.exp(-r * deltaT)
+  val coef = Math.exp(-r * deltaT * points.size)
 
   def calcBranch(points: Seq[Point], factor: Double = 1): Double = points match {
-    case Nil           => (X - factor * S) max 0
-    case point :: rest => coef * {
+    case Nil           =>
+      onLeaf((X - factor * S) max 0)
+    case point :: rest => {
       import point._
       pu * calcBranch(rest, factor * u) + pd * calcBranch(rest, factor * d) +
         (if (pm > 0) pm * calcBranch(rest, factor) else 0.0)
     }
   }
 
-  override def calc: Double = calcBranch(points)
+  override def calc: Double = coef * calcBranch(points)
 }
 

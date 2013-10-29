@@ -1,5 +1,6 @@
 package OptionPrice
 
+
 /**
  * Created with IntelliJ IDEA.
  * User: Oleg
@@ -9,11 +10,13 @@ package OptionPrice
  */
 trait Algorithm {
   def calc: Double
+
+  def onLeaf(leaf: Double): Double = leaf
 }
 
 
 abstract class Calculation(protected val config: Config) extends Algorithm {
-  protected[this] case class Point( val u: Double, val d: Double, val pu: Double, val pm: Double, val pd: Double)
+  protected[this] case class Point(val u: Double, val d: Double, val pu: Double, val pm: Double, val pd: Double)
   val points = {
     val pus = config.pu
     val pds = config.pd match {
@@ -29,6 +32,7 @@ abstract class Calculation(protected val config: Config) extends Algorithm {
         case ((u, d), m) => u + d + m == 1.0 /* Т.к. числа задаются в JSON десятичными дробями можно требовать точного равенства -
                                                  Ошибки округления scala зашлифует сама */
       }))
+      case _                      => sys.error("")
     }
     val us = config.u ensuring (_.length == pus.length)
     val ds = config.d match {
@@ -41,6 +45,14 @@ abstract class Calculation(protected val config: Config) extends Algorithm {
   }
 
   lazy val result = calc
+  var leafs = 0
+  var nullleafs = 0
+
+  override def onLeaf(leaf: Double) = {
+    leafs += 1
+    if(leaf == 0) nullleafs += 1
+    leaf
+  }
 }
 
 
