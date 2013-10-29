@@ -5,7 +5,7 @@ package OptionPrice
  * Date: 10/29/13
  * Time: 3:46 AM
  */
-trait OptimizedAlorithm extends Algorithm with IntervalOptimization {
+trait OptimizedAlgorithm extends Algorithm with IntervalOptimization {
   this: Calculation =>
 
   import config.{X, S, r, deltaT}
@@ -19,7 +19,7 @@ trait OptimizedAlorithm extends Algorithm with IntervalOptimization {
     case Nil           => onLeaf(factor).leaf
     case point :: rest => {
       import point._
-      (calcBranch(rest, factor * u) * pu) \\ u + (calcBranch(rest, factor * d) * pd) \\ d + (calcBranch(rest, factor) * pm)
+      (calcBranch(rest, factor * u) * pu * u) + (calcBranch(rest, factor * d) * pd * d)  + (calcBranch(rest, factor) * pm)
     }
   }
 
@@ -31,7 +31,7 @@ trait OptimizedAlorithm extends Algorithm with IntervalOptimization {
     }
   }
 
-  val calcBranch = cache(calcBranchSimple _)
+  val calcBranch = calcBranchSimple _
 
-  override def calc: Double = coef * (X - calcProd(points) + calcBranchSimple(points).value)
+  override def calc: Double = coef * (X - calcProd(points) + S * calcBranch(points, 1).value)
 }

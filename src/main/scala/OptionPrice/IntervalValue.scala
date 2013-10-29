@@ -10,6 +10,7 @@ import java.util
  * Time: 1:51 AM
  */
 trait IntervalOptimization {
+  this:Calculation =>
   val barrier: Double
   case class Interval private[Interval](val left: Double, val right: Double) {
     def /\(other: Interval) = Interval.create(left max other.left, right min other.right)
@@ -33,22 +34,19 @@ trait IntervalOptimization {
 
   }
 
-  case class IntervalValue(value: Double, measure: Double, int: Interval = Interval.whole) {
+  case class IntervalValue(value: Double,  int: Interval = Interval.whole) {
+    def +(other: IntervalValue) = new IntervalValue(this.value + other.value,  this.int /\ other.int)
 
-    def +(other: IntervalValue) = new IntervalValue(this.value + other.value, this.measure + other.measure, this.int /\ other.int)
-
-    def *(factor: Double) = new IntervalValue(this.value * factor, this.measure * factor, this.int)
-
-    def \\(factor: Double) = new IntervalValue(this.value, this.measure, this.int \\ factor)
-
-    def **(factor: Double) = new IntervalValue(this.measure * factor, this.measure, this.int)
+    def *(factor: Double) = new IntervalValue(this.value * factor, this.int)
   }
 
   implicit class LeafEnhance(value: Double) {
     def leaf = if (this.value < barrier)
-      new IntervalValue(0, 0, Interval.to(barrier))
-    else
-      new IntervalValue(value, 1, Interval.from(barrier))
+      new IntervalValue(0, Interval.to(barrier))
+    else {
+      nullleafs +=1
+      new IntervalValue(1 - barrier / value, Interval.from(barrier))
+    }
   }
 
   class IntervalCache[Level] {
@@ -62,7 +60,7 @@ trait IntervalOptimization {
         val result = func(level, element)
         treemap.put(result.int.left, result)
         result
-      } else entry.getValue ** element
+      } else entry.getValue
     }
   }
 }
